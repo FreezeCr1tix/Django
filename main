@@ -1,0 +1,110 @@
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+
+from .models import News, Article
+from .forms import NewsForm, ArticleForm
+
+
+@login_required
+def news_create(request):
+    if request.method == 'POST':
+        form = NewsForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('news_list')
+    else:
+        form = NewsForm()
+    return render(request, 'news/create.html', {'form': form})
+
+
+@login_required
+def news_edit(request, pk):
+    news = get_object_or_404(News, pk=pk)
+    if request.method == 'POST':
+        form = NewsForm(request.POST, instance=news)
+        if form.is_valid():
+            form.save()
+            return redirect('news_list')
+    else:
+        form = NewsForm(instance=news)
+    return render(request, 'news/edit.html', {'form': form, 'news': news})
+
+
+@login_required
+def news_delete(request, pk):
+    news = get_object_or_404(News, pk=pk)
+    if request.method == 'POST':
+        news.delete()
+        return redirect('news_list')
+    return render(request, 'news/delete.html', {'news': news})
+
+
+@login_required
+def articles_create(request):
+    if request.method == 'POST':
+        form = ArticleForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('articles_list')
+    else:
+        form = ArticleForm()
+    return render(request, 'articles/create.html', {'form': form})
+
+
+@login_required
+def articles_edit(request, pk):
+    article = get_object_or_404(Article, pk=pk)
+    if request.method == 'POST':
+        form = ArticleForm(request.POST, instance=article)
+        if form.is_valid():
+            form.save()
+            return redirect('articles_list')
+    else:
+        form = ArticleForm(instance=article)
+    return render(request, 'articles/edit.html', {'form': form, 'article': article})
+
+
+@login_required
+def articles_delete(request, pk):
+    article = get_object_or_404(Article, pk=pk)
+    if request.method == 'POST':
+        article.delete()
+        return redirect('articles_list')
+    return render(request, 'articles/delete.html', {'article': article})
+
+
+class NewsCreateView(CreateView):
+    model = News
+    form_class = NewsForm
+    template_name = 'news/create.html'
+
+
+class NewsUpdateView(UpdateView):
+    model = News
+    form_class = NewsForm
+    template_name = 'news/edit.html'
+
+
+class NewsDeleteView(DeleteView):
+    model = News
+    template_name = 'news/delete.html'
+    success_url = '/news/list/'
+
+
+class ArticleCreateView(CreateView):
+    model = Article
+    form_class = ArticleForm
+    template_name = 'articles/create.html'
+
+
+class ArticleUpdateView(UpdateView):
+    model = Article
+    form_class = ArticleForm
+    template_name = 'articles/edit.html'
+
+
+class ArticleDeleteView(DeleteView):
+    model = Article
+    template_name = 'articles/delete.html'
+    success_url = '/articles/list/'
